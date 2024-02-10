@@ -23,21 +23,12 @@ function Header() {
 }
 
 function Menu() {
-	console.log(pizzaData);
 	return (
 		<div className="menu">
 			<h2>Our Menu</h2>
-			<div className="pizzas">
-				{pizzaData.map((pizza, index) => (
-					<Pizza
-						key={index}
-						name={pizza.name}
-						ingredients={pizza.ingredients}
-						photoName={pizza.photoName}
-						price={pizza.price}
-					/>
-				))}
-			</div>
+			<ul className="pizzas">
+				{pizzaData.map((pizza) => (<Pizza pizzaObj={pizza} key={pizza.name} />))}
+			</ul>
 		</div>
 	);
 }
@@ -50,7 +41,12 @@ function Footer() {
 	console.log(isOpen);
 	return (
 		<footer className="footer">
-			{new Date().toLocaleTimeString()}, We are currently open
+			{isOpen && (
+				<div className="order">
+					<p>We're open until {closeHour}:00, Come visit us or oder online.</p>
+					<button className="btn">Order</button>
+				</div>
+			)}
 		</footer>
 	);
 }
@@ -58,14 +54,14 @@ function Footer() {
 function Pizza(props) {
 	console.log(props);
 	return (
-		<div className="pizza">
-			<img src={props.photoName} alt={props.name}></img>
+		<li className="pizza">
+			<img src={props.pizzaObj.photoName} alt={props.pizzaObj.name}></img>
 			<div>
-				<h3>{props.name}</h3>
-				<p>{props.ingredients}</p>
-				<span>{props.price}</span>
+				<h3>{props.pizzaObj.name}</h3>
+				<p>{props.pizzaObj.ingredients}</p>
+				<span>{props.pizzaObj.price}</span>
 			</div>
-		</div>
+		</li>
 	);
 }
 
