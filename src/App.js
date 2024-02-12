@@ -1,8 +1,9 @@
-import React from "react";
-import logo from "./logo.svg";
+import React, { useState, useEffect } from "react";
+// import logo from "./logo.svg";
 import "./App.css";
 import "./index.css";
-import pizzaData from "./data.js";
+// import pizzaData from "./data.js";
+import axios from 'axios';
 
 function App() {
 	return (
@@ -23,14 +24,48 @@ function Header() {
 }
 
 function Menu() {
-	return (
-		<div className="menu">
-			<h2>Our Menu</h2>
-			<ul className="pizzas">
-				{pizzaData.map((pizza) => (<Pizza pizzaObj={pizza} key={pizza.name} />))}
-			</ul>
-		</div>
-	);
+    const [pizzas, setPizzas] = useState([]);
+
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://localhost:8000/pizza-menu/pizza-list/');
+                setPizzas(response.data); // Assuming the data is an array of pizzas
+            } catch (error) {
+                console.error('Error fetching data:', error);
+            }
+        };
+        
+        fetchData(); // Call the fetchData function to fetch data when the component mounts
+    }, []); // Empty dependency array means this effect runs only once when the component mounts
+
+    return (
+        <div className="menu">
+            <h2>Our Menu</h2>
+            {pizzas.length > 0 ?
+                (
+                    <ul className="pizzas">
+                        {pizzas.map((pizza) => (<Pizza pizzaObj={pizza} key={pizza.id} />))}
+                    </ul>
+                )
+                : <p>No pizzas available</p>
+            }
+        </div>
+    );
+}
+
+function Pizza({pizzaObj}) {
+    if(pizzaObj.sold_out) return null;
+    return (
+        <li className="pizza">
+            <img src={pizzaObj.image} alt={pizzaObj.name}></img>
+            <div>
+                <h3>{pizzaObj.name}</h3>
+                <p>{pizzaObj.ingredients}</p>
+                <span>{pizzaObj.price}</span>
+            </div>
+        </li>
+    );
 }
 
 function Footer() {
@@ -38,31 +73,23 @@ function Footer() {
 	const openHour = 12;
 	const closeHour = 22;
 	const isOpen = hour >= openHour && hour <= closeHour;
-	console.log(isOpen);
 	return (
 		<footer className="footer">
-			{isOpen && (
-				<div className="order">
-					<p>We're open until {closeHour}:00, Come visit us or oder online.</p>
-					<button className="btn">Order</button>
-				</div>
-			)}
+			{isOpen ? <Order closeHour={closeHour} openHour={openHour} /> :
+				<p>We're happy to welcome you between {openHour}:00 and {closeHour}:00 !</p>
+		}
 		</footer>
 	);
 }
 
-function Pizza(props) {
-	console.log(props);
+function Order({openHour, closeHour}) {
 	return (
-		<li className="pizza">
-			<img src={props.pizzaObj.photoName} alt={props.pizzaObj.name}></img>
-			<div>
-				<h3>{props.pizzaObj.name}</h3>
-				<p>{props.pizzaObj.ingredients}</p>
-				<span>{props.pizzaObj.price}</span>
-			</div>
-		</li>
+		<div className="order">
+			<p>We're open from {openHour}:00 to {closeHour}:00, Come visit us or oder online.</p>
+			<button className="btn">Order</button>
+		</div>
 	);
 }
+
 
 export default App;
